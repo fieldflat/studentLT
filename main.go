@@ -20,8 +20,8 @@ type Item struct {
 	Title               string `validate:"required"` // イベントタイトル
 	Description         string `validate:"required"` // イベントの説明
 	Price               string `validate:"required"` // イベントの参加価格
-	MaxParticipants     uint64 `validate:"required"` // イベントの最大参加可能人数
-	NumParticipants     uint64 `validate:"required"` // イベントの現在参加予定人数
+	MaxParticipants     int    `validate:"required"` // イベントの最大参加可能人数
+	NumParticipants     int    // イベントの現在参加予定人数
 	ScheduledDateYear   uint64 `validate:"required"` // イベントの開催予定日時 (年)
 	ScheduledDateMonth  uint64 `validate:"required"` // イベントの開催予定日時 (月)
 	ScheduledDateDay    uint64 `validate:"required"` // イベントの開催予定日時 (日)
@@ -114,8 +114,8 @@ func create(
 	title string,
 	description string,
 	price string,
-	maxParticipants uint64,
-	numParticipants uint64,
+	maxParticipants int,
+	numParticipants int,
 	scheduledDateYear uint64,
 	scheduledDateMonth uint64,
 	scheduledDateDay uint64,
@@ -203,8 +203,8 @@ func update(
 	title string,
 	description string,
 	price string,
-	maxParticipants uint64,
-	numParticipants uint64,
+	maxParticipants int,
+	numParticipants int,
 	scheduledDateYear uint64,
 	scheduledDateMonth uint64,
 	scheduledDateDay uint64,
@@ -262,7 +262,47 @@ func getAll() []Item {
 	return items
 }
 
+// 検索条件を満たすItemを取得する
+func search(searchWords map[string]string) []Item {
+	db, err := gorm.Open("sqlite3", "test.sqlite3")
+	if err != nil {
+		panic("failed to connect database\n")
+	}
+	var items []Item
+	query := db.Order("created_at desc")
+
+	if len(searchWords["words"]) != 0 {
+		query = query.Where("title LIKE (?) OR description LIKE (?)", "%"+searchWords["words"]+"%", "%"+searchWords["words"]+"%")
+	}
+
+	if searchWords["scheduledDateFrom"] != "" || searchWords["scheduledDateTo"] != "" {
+		scheduledDateFrom := searchWords["scheduledDateFrom"]
+		scheduledDateFromSlice := strings.Split(scheduledDateFrom, "-")
+		scheduledDateFromYear, _ := strconv.ParseUint(scheduledDateFromSlice[0], 10, 32)
+		scheduledDateFromMonth, _ := strconv.ParseUint(scheduledDateFromSlice[1], 10, 32)
+		scheduledDateFromDay, _ := strconv.ParseUint(scheduledDateFromSlice[2], 10, 32)
+
+		scheduledDateTo := searchWords["scheduledDateTo"]
+		scheduledDateToSlice := strings.Split(scheduledDateTo, "-")
+		scheduledDateToYear, _ := strconv.ParseUint(scheduledDateToSlice[0], 10, 32)
+		scheduledDateToMonth, _ := strconv.ParseUint(scheduledDateToSlice[1], 10, 32)
+		scheduledDateToDay, _ := strconv.ParseUint(scheduledDateToSlice[2], 10, 32)
+
+		query = query.Where("scheduled_date_year >= (?) ", scheduledDateFromYear)
+		query = query.Where("scheduled_date_year <= (?) ", scheduledDateToYear)
+		query = query.Where("scheduled_date_month >= (?) ", scheduledDateFromMonth)
+		query = query.Where("scheduled_date_month <= (?) ", scheduledDateToMonth)
+		query = query.Where("scheduled_date_day >= (?) ", scheduledDateFromDay)
+		query = query.Where("scheduled_date_day <= (?) ", scheduledDateToDay)
+	}
+
+	query.Find(&items)
+	return items
+}
+
+//
 // main関数
+//
 func main() {
 	r := gin.Default()
 	r.Static("/assets", "./assets")
@@ -277,69 +317,39 @@ func main() {
 		})
 	})
 
-	// 新規作成
-	// r.POST("/new", func(c *gin.Context) {
-	// 	r.LoadHTMLGlob("templates/main/*")
-	// 	title := c.PostForm("title")
-	// 	description := c.PostForm("description")
-	// 	price := c.PostForm("price")
-	// 	maxParticipants, _ := strconv.ParseUint(c.PostForm("maxParticipants"), 10, 32)
-	// 	numParticipants, _ := strconv.ParseUint(c.PostForm("numParticipants"), 10, 32)
-	// 	scheduledDateYear, _ := strconv.ParseUint(c.PostForm("scheduledDateYear"), 10, 32)
-	// 	scheduledDateMonth, _ := strconv.ParseUint(c.PostForm("scheduledDateMonth"), 10, 32)
-	// 	scheduledDateDay, _ := strconv.ParseUint(c.PostForm("scheduledDateDay"), 10, 32)
-	// 	deadlineDateYear, _ := strconv.ParseUint(c.PostForm("deadlineDateYear"), 10, 32)
-	// 	deadlineDateMonth, _ := strconv.ParseUint(c.PostForm("deadlineDateMonth"), 10, 32)
-	// 	deadlineDateDay, _ := strconv.ParseUint(c.PostForm("deadlineDateDay"), 10, 32)
-	// 	belongings := c.PostForm("belongings")
-	// 	target := c.PostForm("target")
-	// 	other := c.PostForm("other")
-	// 	createdTime := c.PostForm("createdTime")
-	// 	updatedTime := c.PostForm("updatedTime")
+	// 検索結果取得
+	r.GET("/search", func(c *gin.Context) {
+		r.LoadHTMLGlob("templates/main/*")
+		// var searchWords map[string]string
+		searchWords := map[string]string{}
+		searchWords["words"] = c.Query("words")
+		searchWords["scheduledDateFrom"] = c.Query("scheduledDateFrom")
+		searchWords["scheduledDateTo"] = c.Query("scheduledDateTo")
 
-	// 	errors := create(
-	// 		title,
-	// 		description,
-	// 		price,
-	// 		maxParticipants,
-	// 		numParticipants,
-	// 		scheduledDateYear,
-	// 		scheduledDateMonth,
-	// 		scheduledDateDay,
-	// 		deadlineDateYear,
-	// 		deadlineDateMonth,
-	// 		deadlineDateDay,
-	// 		belongings,
-	// 		target,
-	// 		other,
-	// 		createdTime,
-	// 		updatedTime,
-	// 	)
-	// 	log.Print("errors : ", errors)
-	// 	if len(errors) != 0 {
-	// 		items := getAll()
-	// 		c.HTML(200, "index.tmpl", gin.H{
-	// 			"items":  items,
-	// 			"errors": errors,
-	// 		})
-	// 	} else {
-	// 		log.Print("こっちあよ22！！！！！！")
-	// 		c.Redirect(302, "/")
-	// 	}
-	// })
+		log.Print("searchWords['words']: ", searchWords["words"])
+		log.Print("searchWords['scheduledDateFrom']: ", searchWords["words"])
+		log.Print("searchWords['scheduledDateTo']: ", searchWords["words"])
 
-	// admin TOPページ
+		items := search(searchWords)
+		c.HTML(200, "index.tmpl", gin.H{
+			"items":       items,
+			"searchWords": searchWords,
+		})
+	})
+
+	// sadmin TOPページ
 	r.GET("/ughfkhszdlvjkdjsbfkjsdabfl/sadmin", func(c *gin.Context) {
 		r.LoadHTMLGlob("templates/sadmin/*")
 		c.HTML(200, "sadmin_index.tmpl", gin.H{})
 	})
 
+	// sadmin イベント情報作成ページ
 	r.POST("/ughfkhszdlvjkdjsbfkjsdabfl/sadmin/create", func(c *gin.Context) {
 		title := c.PostForm("title")
 		description := c.PostForm("description")
 		price := c.PostForm("price")
-		maxParticipants, _ := strconv.ParseUint(c.PostForm("maxParticipants"), 10, 32)
-		numParticipants, _ := strconv.ParseUint("1", 10, 32)
+		maxParticipants, _ := strconv.Atoi(c.PostForm("maxParticipants"))
+		numParticipants := 0
 
 		scheduledDate := c.PostForm("scheduledDate")
 		scheduledDateSlice := strings.Split(scheduledDate, "-")
@@ -393,20 +403,6 @@ func main() {
 		)
 		c.Redirect(302, "/")
 	})
-
-	// r.POST("/update/:id", func(c *gin.Context) {
-	// 	title := c.PostForm("title")
-	// 	description := c.PostForm("description")
-	// 	point := c.PostForm("point")
-	// 	n := c.Param("id")
-	// 	id, err := strconv.Atoi(n)
-	// 	if err != nil {
-	// 		panic("failed to get id\n")
-	// 	}
-
-	// 	update(id, title, description, point, time.Now().Format("2006/1/2 15:04:05"))
-	// 	c.Redirect(302, "/")
-	// })
 
 	// assets フォルダの読み取り
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
