@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>名古屋大学 学生LT</title>
+
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+<body class="container">
+
+  <div class="row">
+    {{ range .items }}
+      <div class="col s12 m6 l4">
+        <div class="card" style="background: rgba(250, 221, 142, 0.883); width: 90%; margin: 0 auto; margin-top: 3em;">
+          <div class="card-image waves-effect waves-block waves-light">
+            <img class="activator" src="../assets/img/no_image.png">
+          </div>
+          <div class="card-content" style="height: 15em;">
+            <span class="card-title activator grey-text text-darken-4">{{ .Title }}<i
+                class="material-icons right">more_vert</i></span>
+          </div>
+          <div class="card-reveal">
+            <span class="card-title grey-text text-darken-4">{{ .Title }}<i class="material-icons right">close</i></span>
+            <p>{{ .Description }}<p>
+            <p>参加費：{{ .Price }}円<p>
+            <p>最大参加人数：{{ .MaxParticipants }}人<p>
+            <p>現在参加予定人数：{{ .NumParticipants }}人<p>
+            <p>開催予定日時：{{ .ScheduledDateYear }}年{{ .ScheduledDateMonth }}月{{ .ScheduledDateDay }}日  {{ .ScheduledDateHour }}時{{ .ScheduledDateMinute }}分<p>
+            <p>申し込み締切日時：{{ .DeadlineDateYear }}年{{ .DeadlineDateMonth }}月{{ .DeadlineDateDay }}日  {{ .DeadlineDateHour }}時{{ .DeadlineDateMinute }}分<p>
+            <p>持ち物リスト：{{ .Belongings }}<p>
+            <p>参加対象：{{ .Target }}<p>
+            <p>その他：{{ .Other }}<p>
+            <a href="#">申し込みをする</a></p>
+            </p>
+          </div>
+        </div>
+      </div>
+    {{ end }}
+  </div>
+  
+</body>
+</html>
+
+<style>
+  body {
+    font-family: 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W3', メイリオ, Meiryo, 'ＭＳ Ｐゴシック', sans-serif;
+  }
+</style>
