@@ -434,7 +434,7 @@ func main() {
 	})
 
 	// sadmin Editページ
-	r.GET("/ughfkhszdlvjkdjsbfkjsdabfl/edit", func(c *gin.Context) {
+	r.GET("/ughfkhszdlvjkdjsbfkjsdabfl/sadmin/edit", func(c *gin.Context) {
 		r.LoadHTMLGlob("templates/sadmin/*")
 		db, err := gorm.Open("sqlite3", "test.sqlite3")
 		if err != nil {
@@ -466,8 +466,90 @@ func main() {
 				"scheduledEndTime": scheduledEndTime,
 				"deadlineDate":     deadlineDate,
 				"deadlineTime":     deadlineTime,
+				"isEdit":           true,
 			})
 		}
+	})
+
+	// sadmin update
+	r.POST("/ughfkhszdlvjkdjsbfkjsdabfl/sadmin/update", func(c *gin.Context) {
+		r.LoadHTMLGlob("templates/sadmin/*")
+
+		id, _ := strconv.Atoi(c.Query("id"))
+		title := c.PostForm("title")
+		description := c.PostForm("description")
+		price, _ := strconv.Atoi(c.PostForm("price"))
+		maxParticipants, _ := strconv.Atoi(c.PostForm("maxParticipants"))
+		numParticipants := 0
+
+		scheduledDate := c.PostForm("scheduledDate")
+		scheduledDateSlice := strings.Split(scheduledDate, "-")
+		scheduledDateYear, _ := strconv.Atoi(scheduledDateSlice[0])
+		scheduledDateMonth, _ := strconv.Atoi(scheduledDateSlice[1])
+		scheduledDateDay, _ := strconv.Atoi(scheduledDateSlice[2])
+
+		scheduledTime := c.PostForm("scheduledTime")
+		scheduledTimeSlice := strings.Split(scheduledTime, ":")
+		scheduledDateHour, _ := strconv.Atoi(scheduledTimeSlice[0])
+		scheduledDateMinute, _ := strconv.Atoi(scheduledTimeSlice[1])
+
+		scheduledDateEnd := c.PostForm("scheduledDateEnd")
+		scheduledDateEndSlice := strings.Split(scheduledDateEnd, "-")
+		scheduledDateEndYear, _ := strconv.Atoi(scheduledDateEndSlice[0])
+		scheduledDateEndMonth, _ := strconv.Atoi(scheduledDateEndSlice[1])
+		scheduledDateEndDay, _ := strconv.Atoi(scheduledDateEndSlice[2])
+
+		scheduledEndTime := c.PostForm("scheduledEndTime")
+		scheduledEndTimeSlice := strings.Split(scheduledEndTime, ":")
+		scheduledDateEndHour, _ := strconv.Atoi(scheduledEndTimeSlice[0])
+		scheduledDateEndMinute, _ := strconv.Atoi(scheduledEndTimeSlice[1])
+
+		deadlineDate := c.PostForm("deadlineDate")
+		deadlineDateSlice := strings.Split(deadlineDate, "-")
+		deadlineDateYear, _ := strconv.Atoi(deadlineDateSlice[0])
+		deadlineDateMonth, _ := strconv.Atoi(deadlineDateSlice[1])
+		deadlineDateDay, _ := strconv.Atoi(deadlineDateSlice[2])
+
+		deadlineTime := c.PostForm("deadlineTime")
+		deadlineTimeSlice := strings.Split(deadlineTime, ":")
+		deadlineDateHour, _ := strconv.Atoi(deadlineTimeSlice[0])
+		deadlineDateMinute, _ := strconv.Atoi(deadlineTimeSlice[1])
+
+		belongings := c.PostForm("belongings")
+		target := c.PostForm("target")
+		other := c.PostForm("other")
+		createdTime := time.Now().Format("2006/1/2 15:04:05")
+		updatedTime := time.Now().Format("2006/1/2 15:04:05")
+
+		update(
+			id,
+			title,
+			description,
+			price,
+			maxParticipants,
+			numParticipants,
+			scheduledDateYear,
+			scheduledDateMonth,
+			scheduledDateDay,
+			scheduledDateHour,
+			scheduledDateMinute,
+			scheduledDateEndYear,
+			scheduledDateEndMonth,
+			scheduledDateEndDay,
+			scheduledDateEndHour,
+			scheduledDateEndMinute,
+			deadlineDateYear,
+			deadlineDateMonth,
+			deadlineDateDay,
+			deadlineDateHour,
+			deadlineDateMinute,
+			belongings,
+			target,
+			other,
+			createdTime,
+			updatedTime,
+		)
+		c.Redirect(302, "/ughfkhszdlvjkdjsbfkjsdabfl/sadmin")
 	})
 
 	// assets フォルダの読み取り

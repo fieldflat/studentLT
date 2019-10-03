@@ -25,7 +25,12 @@
   <h1>Sadmin Page</h1>
 
   <div class="row">
+    {{ if .isEdit}}
+    <form class="col s12" method="post" action="/ughfkhszdlvjkdjsbfkjsdabfl/sadmin/update?id={{ .item.ID }}">
+    {{ else }}
     <form class="col s12" method="post" action="/ughfkhszdlvjkdjsbfkjsdabfl/sadmin/create">
+    {{ end }}
+    
       <div class="row">
         <div class="input-field col s12">
           <input id="input_text" type="text" data-length="10" name="title" value={{ .item.Title }}>
