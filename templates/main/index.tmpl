@@ -45,9 +45,26 @@
           <label for="input_text">開催日時 (to)</label>
         </div>
       </div>
+      <div class="row">
+        <div class="input-field col s4">
+          <input type="number" name="priceFrom" value={{.searchWords.priceFrom}}>
+          <label for="input_text">値段 (from)</label>
+        </div>
+      </div>
+      から
+      <div class="row">
+        <div class="input-field col s4">
+          <input type="number" name="priceTo" value={{.searchWords.priceTo}}>
+          <label for="input_text">値段 (to)</label>
+        </div>
+      </div>
 
       <div class="center-align">
         <button class="btn btn-primary btn-lg" type="submit">検索</button>
+      </div>
+
+      <div class="center-align">
+        <a href="/" class="btn btn-success btn-lg" style="margin-top: 3em;">検索項目を初期化する</a>
       </div>
 
     </form>
@@ -71,6 +88,7 @@
             <p>最大参加人数：{{ .MaxParticipants }}人<p>
             <p>現在参加予定人数：{{ .NumParticipants }}人<p>
             <p>開催予定日時：{{ .ScheduledDateYear }}年{{ .ScheduledDateMonth }}月{{ .ScheduledDateDay }}日  {{ .ScheduledDateHour }}時{{ .ScheduledDateMinute }}分<p>
+            <p>開催終了日時：{{ .ScheduledDateEndYear }}年{{ .ScheduledDateEndMonth }}月{{ .ScheduledDateEndDay }}日  {{ .ScheduledDateEndHour }}時{{ .ScheduledDateEndMinute }}分<p>
             <p>申し込み締切日時：{{ .DeadlineDateYear }}年{{ .DeadlineDateMonth }}月{{ .DeadlineDateDay }}日  {{ .DeadlineDateHour }}時{{ .DeadlineDateMinute }}分<p>
             <p>持ち物リスト：{{ .Belongings }}<p>
             <p>参加対象：{{ .Target }}<p>

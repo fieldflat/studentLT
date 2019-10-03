@@ -28,67 +28,79 @@
     <form class="col s12" method="post" action="/ughfkhszdlvjkdjsbfkjsdabfl/sadmin/create">
       <div class="row">
         <div class="input-field col s12">
-          <input id="input_text" type="text" data-length="10" name="title">
+          <input id="input_text" type="text" data-length="10" name="title" value={{ .item.Title }}>
           <label for="input_text">Input Title</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s12">
-          <textarea id="textarea2" class="materialize-textarea" data-length="120" name="description"></textarea>
+          <textarea id="textarea2" class="materialize-textarea" data-length="120" name="description">{{ .item.Description }}</textarea>
           <label for="textarea2">Input Description</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s6">
-          <input id="input_text" type="number" name="price">
+          <input id="input_text" type="number" name="price" value={{ .item.Price }}>
           <label for="input_text">Input Price (yen)</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s8">
-          <input id="input_text" type="number" name="maxParticipants">
+          <input id="input_text" type="number" name="maxParticipants" value={{ .item.MaxParticipants }}>
           <label for="input_text">Input MaxParticipants</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s6">
-          <input type="text" class="datepicker" name="scheduledDate">
+          <input type="text" class="datepicker" name="scheduledDate" value={{ .scheduledDate }}>
           <label for="input_text">Input ScheduledDate</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s6">
-          <input type="text" class="timepicker" name="scheduledTime">
+          <input type="text" class="timepicker" name="scheduledTime" value={{ .scheduledTime }}>
           <label for="input_text">Input ScheduledTime</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s6">
-          <input type="text" class="datepicker" name="deadlineDate">
+          <input type="text" class="datepicker" name="scheduledDateEnd" value={{ .scheduledDateEnd }}>
+          <label for="input_text">Input ScheduledDateEnd</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6">
+          <input type="text" class="timepicker" name="scheduledEndTime" value={{ .scheduledEndTime }}>
+          <label for="input_text">Input ScheduledEndTime</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s6">
+          <input type="text" class="datepicker" name="deadlineDate" value={{ .deadlineDate }}>
           <label for="input_text">Input DeadlineDate</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s6">
-          <input type="text" class="timepicker" name="deadlineTime">
+          <input type="text" class="timepicker" name="deadlineTime" value={{ .deadlineTime }}>
           <label for="input_text">Input DeadlineTime</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s12">
-          <textarea id="textarea2" class="materialize-textarea" data-length="120" name="belongings"></textarea>
+          <textarea id="textarea2" class="materialize-textarea" data-length="120" name="belongings">{{ .item.Belongings }}</textarea>
           <label for="textarea2">Input Belongings</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s12">
-          <textarea id="textarea2" class="materialize-textarea" data-length="120" name="target"></textarea>
+          <textarea id="textarea2" class="materialize-textarea" data-length="120" name="target">{{ .item.Target }}</textarea>
           <label for="textarea2">Input Target</label>
         </div>
       </div>
       <div class="row">
         <div class="input-field col s12">
-          <textarea id="textarea2" class="materialize-textarea" data-length="120" name="other"></textarea>
+          <textarea id="textarea2" class="materialize-textarea" data-length="120" name="other">{{ .item.Other }}</textarea>
           <label for="textarea2">Input Others</label>
         </div>
       </div>
