@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
@@ -58,7 +60,7 @@ type User struct {
 // SessionInfo は セッション情報を保持する構造体
 type SessionInfo struct {
 	UserID         interface{} //ログインしているユーザのID
-	NickName       interface{} //ログインしているユーザの名前
+	Name           interface{} //ログインしているユーザの名前
 	IsSessionAlive bool        //セッションが生きているかどうか
 }
 
@@ -226,11 +228,59 @@ func search(searchWords map[string]string) []Item {
 	return items
 }
 
+// Login is a function
+// =====================
+// Login 関数
+// =====================
+func Login(g *gin.Context, user User) {
+	session := sessions.Default(g)
+	session.Set("alive", true)
+	session.Set("userID", user.ID)
+	session.Set("name", user.Name)
+	session.Save()
+}
+
+// GetSessionInfo is a function
+// =====================
+// GetSessionInfo 関数
+// =====================
+func GetSessionInfo(c *gin.Context) SessionInfo {
+	var info SessionInfo
+	session := sessions.Default(c)
+	userID := session.Get("userID")
+	name := session.Get("name")
+	alive := session.Get("alive")
+	// if isNil(userID) && isNil(name) && isNil(alive) {
+	if userID == nil && name == nil && alive == nil {
+		info = SessionInfo{
+			UserID: -1, Name: "", IsSessionAlive: false,
+		}
+	} else {
+		info = SessionInfo{
+			UserID:         userID.(int),
+			Name:           name.(string),
+			IsSessionAlive: alive.(bool),
+		}
+	}
+	log.Println(info)
+	return info
+}
+
+// isNil is a function
+// =====================
+// isNil 関数
+// =====================
+// func isNil(a interface{}) bool {
+// 	return a == nil || reflect.ValueOf(a).IsNil()
+// }
+
 // ================
 // main関数
 // ================
 func main() {
 	r := gin.Default()
+	store := cookie.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions("mysession", store))
 	r.Static("/assets", "./assets")
 	dbInit()
 
@@ -247,8 +297,10 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		r.LoadHTMLGlob("templates/main/*")
 		items := getAll()
+		info := GetSessionInfo(c)
 		c.HTML(200, "index.tmpl", gin.H{
-			"items": items,
+			"items":       items,
+			"SessionInfo": info,
 		})
 	})
 
@@ -267,9 +319,11 @@ func main() {
 		searchWords["priceTo"] = c.Query("priceTo")
 
 		items := search(searchWords)
+		info := GetSessionInfo(c)
 		c.HTML(200, "index.tmpl", gin.H{
 			"items":       items,
 			"searchWords": searchWords,
+			"SessionInfo": info,
 		})
 	})
 
@@ -288,8 +342,10 @@ func main() {
 		id := c.Query("id")
 		db.First(&item, id)
 
+		info := GetSessionInfo(c)
 		c.HTML(200, "detail.tmpl", gin.H{
-			"item": item,
+			"item":        item,
+			"SessionInfo": info,
 		})
 	})
 
@@ -329,6 +385,47 @@ func main() {
 		} else {
 			createUser(user)
 			c.HTML(200, "index.tmpl", gin.H{})
+		}
+	})
+
+	// *********************
+	// url: GET "/login"
+	// ログインページ
+	// *********************
+	r.GET("/login", func(c *gin.Context) {
+		r.LoadHTMLGlob("templates/main/*")
+
+		c.HTML(200, "login.tmpl", gin.H{})
+	})
+
+	// *********************
+	// url: POST "/login"
+	// ユーザ登録
+	// *********************
+	r.POST("/login", func(c *gin.Context) {
+		r.LoadHTMLGlob("templates/main/*")
+		db, err := gorm.Open("sqlite3", "test.sqlite3")
+		if err != nil {
+			panic("failed to connect database\n")
+		}
+
+		user := User{}
+		email := c.PostForm("email")
+		bytes := []byte(c.PostForm("password"))
+		hashPassword := sha512.Sum512(bytes)
+		password := hex.EncodeToString(hashPassword[:])
+
+		db.First(&user, "email = (?) AND password = (?)", email, password)
+		log.Println(user)
+
+		if user.ID == 0 {
+			c.HTML(200, "login.tmpl", gin.H{})
+		} else {
+			Login(c, user)
+			info := GetSessionInfo(c)
+			c.HTML(200, "index.tmpl", gin.H{
+				"SessionInfo": info,
+			})
 		}
 	})
 
