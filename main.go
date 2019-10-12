@@ -266,6 +266,16 @@ func GetSessionInfo(c *gin.Context) SessionInfo {
 	return info
 }
 
+// ClearSession is a function
+// =====================
+// ClearSession 関数
+// =====================
+func ClearSession(c *gin.Context) {
+	session := sessions.Default(c)
+	session.Clear()
+	session.Save()
+}
+
 // isNil is a function
 // =====================
 // isNil 関数
@@ -427,6 +437,17 @@ func main() {
 				"SessionInfo": info,
 			})
 		}
+	})
+
+	// *********************
+	// url: GET "/logout"
+	// ログインページ
+	// *********************
+	r.GET("/logout", func(c *gin.Context) {
+		r.LoadHTMLGlob("templates/main/*")
+
+		ClearSession(c)
+		c.Redirect(302, "/")
 	})
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
