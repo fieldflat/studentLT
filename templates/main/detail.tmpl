@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>詳細ページ</title>
+
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+</head>
+<body class="container">
+
+  <div class="center-align">
+    <h1>詳細ページ</h1>
+  </div>
+
+  <div style="margin: 10em 0;">
+    <div>
+      <h2>イベント名</h2>
+      <p>{{.item.Title}}</p>
+    </div>
+    <div>
+      <h2>説明</h2>
+      <p>{{.item.Description}}</p>
+    </div>
+    <div>
+      <h2>値段</h2>
+      <p>{{.item.Price}}円</p>
+    </div>
+    <div>
+      <h2>最大参加人数</h2>
+      <p>{{.item.MaxParticipants}}人</p>
+    </div>
+    <div>
+      <h2>現在参加人数</h2>
+      <p>{{.item.NumParticipants}}人</p>
+    </div>
+    <div>
+      <h2>開催予定日時</h2>
+      <p>
+        {{.item.ScheduledDateYear}}年{{.item.ScheduledDateMonth}}月{{.item.ScheduledDateDay}}日　
+        {{.item.ScheduledDateHour}}時{{.item.ScheduledDateMinute}}分
+        〜
+        {{.item.ScheduledDateEndYear}}年{{.item.ScheduledDateEndMonth}}月{{.item.ScheduledDateEndDay}}日　
+        {{.item.ScheduledDateEndHour}}時{{.item.ScheduledDateEndMinute}}分
+      </p>
+    </div>
+    <div>
+      <h2>申し込み締切日時</h2>
+      <p>
+        {{.item.DeadlineDateYear}}年{{.item.DeadlineDateMonth}}月{{.item.DeadlineDateDay}}日　
+        {{.item.DeadlineDateHour}}時{{.item.DeadlineDateMinute}}分
+      </p>
+    </div>
+    <div>
+      <h2>持ち物</h2>
+      <p>{{.item.Belongings}}</p>
+    </div>
+    <div>
+      <h2>参加対象者</h2>
+      <p>{{.item.Target}}</p>
+    </div>
+    <div>
+      <h2>その他</h2>
+      <p>{{.item.Other}}</p>
+    </div>
+    <div>
+      <h2>最終アップデート日</h2>
+      <p>{{.item.UpdatedTime}}</p>
+    </div>
+
+    <div class="center-align">
+      <button class="btn btn-primary btn-lg" id="confirm">申し込みをする</button>
+    </div>
+  </div>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<style>
+  body {
+    font-family: 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W3', メイリオ, Meiryo, 'ＭＳ Ｐゴシック', sans-serif;
+  }
+</style>
+
+<script>
+  // Using with jQuery
+  $(document).ready(function () {
+    $('.datepicker').datepicker({
+      format: "yyyy-mm-dd"
+    });
+  });
+
+  $(document).ready(function () {
+    $('.timepicker').timepicker({
+      twelveHour: false, // change to 12 hour AM/PM clock from 24 hour
+    });
+  });
+
+  $('#confirm').click(function(){
+    if (!confirm('申し込みをしますか？')) {
+      return false;
+    } else {
+      /*　OKの時の処理 */
+      location.href = '/';
+    }
+  });
+
+
+</script>
