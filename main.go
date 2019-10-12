@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha512"
+	"encoding/hex"
 	"log"
 	"net/http"
 	_ "net/http"
@@ -48,8 +50,16 @@ type Item struct {
 type User struct {
 	// 大文字だと Public 扱い
 	ID       int    `json:"id"`
+	Name     string `json:"userName"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+// SessionInfo は セッション情報を保持する構造体
+type SessionInfo struct {
+	UserID         interface{} //ログインしているユーザのID
+	NickName       interface{} //ログインしているユーザの名前
+	IsSessionAlive bool        //セッションが生きているかどうか
 }
 
 // Validate about Item structure.
@@ -96,6 +106,7 @@ func dbInit() {
 	}
 
 	db.AutoMigrate(&Item{})
+	db.AutoMigrate(&User{})
 }
 
 // ===================
@@ -118,6 +129,18 @@ func create(item Item) map[string]string {
 	log.Print("入力エラーなし！！")
 	db.Create(&item)
 	return errorMessages
+}
+
+// ===================
+// createUser関数
+// ===================
+func createUser(user User) {
+	db, err := gorm.Open("sqlite3", "test.sqlite3")
+	if err != nil {
+		panic("failed to connect database\n")
+	}
+
+	db.Create(&user)
 }
 
 // ====================
@@ -211,6 +234,12 @@ func main() {
 	r.Static("/assets", "./assets")
 	dbInit()
 
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//
+	// 以下，ユーザー操作の処理
+	//
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 	// *********************
 	// url: "/"
 	// 一覧取得
@@ -262,6 +291,45 @@ func main() {
 		c.HTML(200, "detail.tmpl", gin.H{
 			"item": item,
 		})
+	})
+
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//
+	// 以下，ログインの処理
+	//
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	// *********************
+	// url: GET "/signin"
+	// サインインページ
+	// *********************
+	r.GET("/signin", func(c *gin.Context) {
+		r.LoadHTMLGlob("templates/main/*")
+
+		c.HTML(200, "signin.tmpl", gin.H{})
+	})
+
+	// *********************
+	// url: POST "/signin"
+	// ユーザ登録
+	// *********************
+	r.POST("/signin", func(c *gin.Context) {
+		r.LoadHTMLGlob("templates/main/*")
+
+		user := User{}
+		user.Name = c.PostForm("name")
+		user.Email = c.PostForm("email")
+		bytes := []byte(c.PostForm("password"))
+		hashPassword := sha512.Sum512(bytes)
+		user.Password = hex.EncodeToString(hashPassword[:])
+		log.Printf("%x\n", sha512.Sum512(bytes))
+
+		if user.Name == "" || user.Email == "" {
+			c.HTML(200, "signin.tmpl", gin.H{})
+		} else {
+			createUser(user)
+			c.HTML(200, "index.tmpl", gin.H{})
+		}
 	})
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
