@@ -26,7 +26,7 @@ func (part *Participant) Create() {
 	query := db.Order("created_at desc").Where("item_id = (?) AND user_id = (?)", part.ItemID, part.UserID)
 	query.Find(&parts)
 
-	if len(parts) == 0 {
+	if len(parts) == 0 && part.UserID != -1 {
 		db.Create(&part)
 	} else {
 		log.Printf("申し込みできませんでした．すでに申し込みが完了している可能性があります．")
