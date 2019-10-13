@@ -68,13 +68,13 @@ type SessionInfo struct {
 // ==============================
 // 構造体Itemのバリデーション
 // ==============================
-func (form *Item) Validate() (ok bool, result map[string]string) {
+func (item *Item) Validate() (ok bool, result map[string]string) {
 	result = make(map[string]string)
 	// 構造体のデータをタグで定義した検証方法でチェック
-	// err := validator.New().Struct(*form)
+	// err := validator.New().Struct(*item)
 	validate := validator.New()
 	// validate.RegisterValidation("is_tarou", tarou) //第一引数をvalidateタグで設定した名前に合わせる
-	err := validate.Struct(*form)
+	err := validate.Struct(*item)
 	if err != nil {
 		errors := err.(validator.ValidationErrors)
 		if len(errors) != 0 {
@@ -114,7 +114,7 @@ func dbInit() {
 // ===================
 // create関数
 // ===================
-func create(item Item) map[string]string {
+func (item *Item) create() map[string]string {
 	db, err := gorm.Open("sqlite3", "test.sqlite3")
 	if err != nil {
 		panic("failed to connect database\n")
@@ -136,7 +136,7 @@ func create(item Item) map[string]string {
 // ===================
 // createUser関数
 // ===================
-func createUser(user User) {
+func (user *User) create() {
 	db, err := gorm.Open("sqlite3", "test.sqlite3")
 	if err != nil {
 		panic("failed to connect database\n")
@@ -148,7 +148,7 @@ func createUser(user User) {
 // ====================
 // update関数
 // ====================
-func update(item Item) {
+func (item *Item) update() {
 	db, err := gorm.Open("sqlite3", "test.sqlite3")
 	if err != nil {
 		panic("failed to connect database\n")
@@ -158,10 +158,10 @@ func update(item Item) {
 }
 
 // ====================
-// getAll関数
+// getAllItems関数
 // 全てのItemを取得する
 // ====================
-func getAll() []Item {
+func getAllItems() []Item {
 	db, err := gorm.Open("sqlite3", "test.sqlite3")
 	if err != nil {
 		panic("failed to connect database\n")
@@ -175,7 +175,7 @@ func getAll() []Item {
 // search関数
 // 検索条件を満たすItemを取得する
 // =============================
-func search(searchWords map[string]string) []Item {
+func searchItems(searchWords map[string]string) []Item {
 	db, err := gorm.Open("sqlite3", "test.sqlite3")
 	if err != nil {
 		panic("failed to connect database\n")
@@ -276,14 +276,6 @@ func ClearSession(c *gin.Context) {
 	session.Save()
 }
 
-// isNil is a function
-// =====================
-// isNil 関数
-// =====================
-// func isNil(a interface{}) bool {
-// 	return a == nil || reflect.ValueOf(a).IsNil()
-// }
-
 // ================
 // main関数
 // ================
@@ -306,7 +298,7 @@ func main() {
 	// *********************
 	r.GET("/", func(c *gin.Context) {
 		r.LoadHTMLGlob("templates/main/*")
-		items := getAll()
+		items := getAllItems()
 		info := GetSessionInfo(c)
 		c.HTML(200, "index.tmpl", gin.H{
 			"items":       items,
@@ -328,7 +320,7 @@ func main() {
 		searchWords["priceFrom"] = c.Query("priceFrom")
 		searchWords["priceTo"] = c.Query("priceTo")
 
-		items := search(searchWords)
+		items := searchItems(searchWords)
 		info := GetSessionInfo(c)
 		c.HTML(200, "index.tmpl", gin.H{
 			"items":       items,
@@ -393,7 +385,7 @@ func main() {
 		if user.Name == "" || user.Email == "" {
 			c.HTML(200, "signin.tmpl", gin.H{})
 		} else {
-			createUser(user)
+			user.create()
 			c.HTML(200, "index.tmpl", gin.H{})
 		}
 	})
@@ -517,7 +509,7 @@ func main() {
 		item.CreatedTime = time.Now().Format("2006/1/2 15:04:05")
 		item.UpdatedTime = time.Now().Format("2006/1/2 15:04:05")
 
-		create(item)
+		item.create()
 		c.Redirect(302, "/ughfkhszdlvjkdjsbfkjsdabfl/sadmin")
 	})
 
@@ -618,7 +610,7 @@ func main() {
 		item.CreatedTime = time.Now().Format("2006/1/2 15:04:05")
 		item.UpdatedTime = time.Now().Format("2006/1/2 15:04:05")
 
-		update(item)
+		item.update()
 		c.Redirect(302, "/ughfkhszdlvjkdjsbfkjsdabfl/sadmin")
 	})
 
