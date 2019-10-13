@@ -18,12 +18,31 @@
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
 </head>
+
 <body class="container">
 
-  <div class="center-align">
-    <h1>イベント情報掲載ページ</h1>
-    <h2>ログインユーザ：{{.SessionInfo.Name}}, ログインID：{{.SessionInfo.UserID}}</h2>
-    <a href="/logout">ログアウト</a>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="/" class="brand-logo center">Nagoya LT</a>
+      <ul id="nav-mobile" class="left hide-on-med-and-down">
+        {{ if eq .SessionInfo.UserID -1 }}
+        <li><a>ゲストさん</a></li>
+        {{ else }}
+        <li><a>{{.SessionInfo.Name}}さん</a></li>
+        {{ end }}
+      </ul>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        {{ if eq .SessionInfo.UserID -1 }}
+        <li><a href="/login">ログイン</a></li>
+        {{ else }}
+        <li><a href="/logout">ログアウト</a></li>
+        {{ end }}
+      </ul>
+    </div>
+  </nav>
+
+  <div class="center-align" style="margin: 50px 0;">
+    <h3>イベント情報掲載ページ</h3>
   </div>
 
   <div>
@@ -31,7 +50,7 @@
       <div class="row">
         <div class="input-field col s12">
           <textarea class="materialize-textarea" name="words">{{.searchWords.words}}</textarea>
-          <label for="textarea1" name="search-word">検索ワード (例：プログラミング コンピュータ Python)</label>
+          <label for="textarea1" name="search-word">検索ワード (例：プログラミング Python)</label>
         </div>
       </div>
       <div class="row">
@@ -39,9 +58,7 @@
           <input type="text" class="datepicker" name="scheduledDateFrom" value={{.searchWords.scheduledDateFrom}}>
           <label for="input_text">開催日時 (from)</label>
         </div>
-      </div>
-      から
-      <div class="row">
+        <div class="col s1" style="padding: 30px 40px;">〜</div>
         <div class="input-field col s4">
           <input type="text" class="datepicker" name="scheduledDateTo" value={{.searchWords.scheduledDateTo}}>
           <label for="input_text">開催日時 (to)</label>
@@ -52,9 +69,7 @@
           <input type="number" name="priceFrom" value={{.searchWords.priceFrom}}>
           <label for="input_text">値段 (from)</label>
         </div>
-      </div>
-      から
-      <div class="row">
+        <div class="col s1" style="padding: 30px 40px;">〜</div>
         <div class="input-field col s4">
           <input type="number" name="priceTo" value={{.searchWords.priceTo}}>
           <label for="input_text">値段 (to)</label>
@@ -62,47 +77,92 @@
       </div>
 
       <div class="center-align">
-        <button class="btn btn-primary btn-lg" type="submit">検索</button>
+        <button class="waves-effect waves-light btn-large" type="submit">検索</button>
       </div>
 
       <div class="center-align">
-        <a href="/" class="btn btn-success btn-lg" style="margin-top: 3em;">検索項目を初期化する</a>
+        <a href="/" class="waves-effect waves-light btn-large" style="margin-top: 3em;">検索項目を初期化する</a>
       </div>
 
     </form>
   </div>
 
-  <div class="row">
+  <ul class="collection" style="margin: 30px 0;">
     {{ range .items }}
-      <div class="col s12 m6 l4">
-        <div class="card" style="background: rgba(250, 221, 142, 0.883); width: 90%; margin: 0 auto; margin-top: 3em;">
-          <div class="card-image waves-effect waves-block waves-light">
-            <img class="activator" src="../assets/img/no_image.png">
+    <li class="collection-item avatar">
+      <h4 class="title">
+        <!-- Modal Trigger -->
+        <a class="waves-effect waves-light modal-trigger" href="#modal{{.ID}}">{{.Title}}</a>
+
+        <!-- Modal Structure -->
+        <div id="modal{{.ID}}" class="modal">
+          <div class="modal-content">
+            <h4>{{.Title}}</h4>
+            <p style="color: rgb(180, 180, 180);">{{ .Description }}</p>
           </div>
-          <div class="card-content" style="height: 15em;">
-            <span class="card-title activator grey-text text-darken-4">{{ .Title }}<i
-                class="material-icons right">more_vert</i></span>
-          </div>
-          <div class="card-reveal">
-            <span class="card-title grey-text text-darken-4">{{ .Title }}<i class="material-icons right">close</i></span>
-            <p>{{ .Description }}<p>
-            <p>参加費：{{ .Price }}円<p>
-            <p>最大参加人数：{{ .MaxParticipants }}人<p>
-            <p>現在参加予定人数：{{ .NumParticipants }}人<p>
-            <p>開催予定日時：{{ .ScheduledDateYear }}年{{ .ScheduledDateMonth }}月{{ .ScheduledDateDay }}日  {{ .ScheduledDateHour }}時{{ .ScheduledDateMinute }}分<p>
-            <p>開催終了日時：{{ .ScheduledDateEndYear }}年{{ .ScheduledDateEndMonth }}月{{ .ScheduledDateEndDay }}日  {{ .ScheduledDateEndHour }}時{{ .ScheduledDateEndMinute }}分<p>
-            <p>申し込み締切日時：{{ .DeadlineDateYear }}年{{ .DeadlineDateMonth }}月{{ .DeadlineDateDay }}日  {{ .DeadlineDateHour }}時{{ .DeadlineDateMinute }}分<p>
-            <p>持ち物リスト：{{ .Belongings }}<p>
-            <p>参加対象：{{ .Target }}<p>
-            <p>その他：{{ .Other }}<p>
-            <a href="/detail?id={{.ID}}">詳細をみる</a></p>
-            </p>
-          </div>
+          <table class="container">
+            <tbody>
+              <tr>
+                <td>参加費</td>
+                <td>{{ .Price }}</td>
+              </tr>
+              <tr>
+                <td>最大参加人数</td>
+                <td>{{ .MaxParticipants }}人</td>
+              </tr>
+              <tr>
+                <td>現在参加予定人数</td>
+                <td>{{ .NumParticipants }}人</td>
+              </tr>
+              <tr>
+                <td>開催予定日時</td>
+                <td>{{ .ScheduledDateYear }}年{{ .ScheduledDateMonth }}月{{ .ScheduledDateDay }}日
+                {{ .ScheduledDateHour }}時{{ .ScheduledDateMinute }}分</td>
+              </tr>
+              <tr>
+                <td>開催終了日時</td>
+                <td>{{ .ScheduledDateEndYear }}年{{ .ScheduledDateEndMonth }}月{{ .ScheduledDateEndDay }}日
+                {{ .ScheduledDateEndHour }}時{{ .ScheduledDateEndMinute }}分</td>
+              </tr>
+              <tr>
+                <td>申し込み締切日時</td>
+                <td>{{ .DeadlineDateYear }}年{{ .DeadlineDateMonth }}月{{ .DeadlineDateDay }}日
+                {{ .DeadlineDateHour }}時{{ .DeadlineDateMinute }}分</td>
+              </tr>
+              <tr>
+                <td>持ち物リスト</td>
+                <td>{{ .Belongings }}</td>
+              </tr>
+              <tr>
+                <td>参加対象</td>
+                <td>{{ .Target }}</td>
+              </tr>
+              <tr>
+                <td>その他</td>
+                <td>{{ .Other }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <div class="modal-footer">
+            <a href="/detail?id={{.ID}}" class="modal-close waves-effect waves-green btn-flat">詳細をみる</a>
+          </div> -->
+          <form class="col s12" method="post" action="/inform?id={{.ID}}" onSubmit="return check()" style="margin: 30px 0;">
+            <div class="center-align">
+              <button class="btn btn-primary btn-lg" type="submit">申し込みをする</button>
+            </div>
+          </form>
         </div>
-      </div>
+
+      </h4>
+      <h6 style="color: rgb(180, 180, 180);">
+        開催予定：{{ .ScheduledDateYear }}年{{ .ScheduledDateMonth }}月{{ .ScheduledDateDay }}日
+        〜
+        {{ .ScheduledDateEndYear }}年{{ .ScheduledDateEndMonth }}月{{ .ScheduledDateEndDay }}日
+      </h6>
+    </li>
     {{ end }}
-  </div>
-  
+  </ul>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
     integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
@@ -129,4 +189,19 @@
       twelveHour: false, // change to 12 hour AM/PM clock from 24 hour
     });
   });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var elems = document.querySelectorAll('.modal');
+    var instances = M.Modal.init(elems);
+  });
+
+  $('#confirm').click(function () {
+    if (!confirm('申し込みをしますか？')) {
+      return false;
+    } else {
+      /*　OKの時の処理 */
+      // location.href = '/';
+    }
+  });
+
 </script>

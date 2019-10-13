@@ -31,6 +31,7 @@ func dbInit() {
 
 	db.AutoMigrate(&Item{})
 	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Participant{})
 }
 
 // ================
@@ -108,6 +109,31 @@ func main() {
 		})
 	})
 
+	// *********************
+	// url: POST "/inform"
+	// 詳細ページ
+	// *********************
+	r.POST("/inform", func(c *gin.Context) {
+		r.LoadHTMLGlob("templates/main/*")
+		db, err := gorm.Open("sqlite3", "test.sqlite3")
+		if err != nil {
+			panic("failed to connect database\n")
+		}
+
+		var item Item
+		id := c.Query("id")
+		db.First(&item, id)
+
+		info := GetSessionInfo(c)
+		userID, _ := (info.UserID).(int)
+
+		var part Participant
+		part.ItemID, _ = strconv.Atoi(c.Query("id"))
+		part.UserID = userID
+		part.Create()
+		c.Redirect(302, "/")
+	})
+
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//
 	// 以下，ログインの処理
@@ -143,7 +169,7 @@ func main() {
 			c.HTML(200, "signin.tmpl", gin.H{})
 		} else {
 			user.Create()
-			c.HTML(200, "index.tmpl", gin.H{})
+			c.Redirect(302, "/")
 		}
 	})
 
@@ -181,10 +207,11 @@ func main() {
 			c.HTML(200, "login.tmpl", gin.H{})
 		} else {
 			Login(c, user)
-			info := GetSessionInfo(c)
-			c.HTML(200, "index.tmpl", gin.H{
-				"SessionInfo": info,
-			})
+			// info := GetSessionInfo(c)
+			// c.HTML(200, "index.tmpl", gin.H{
+			// 	"SessionInfo": info,
+			// })
+			c.Redirect(302, "/")
 		}
 	})
 
