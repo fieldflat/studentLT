@@ -27,15 +27,15 @@ func (part *Participant) Create() bool {
 	query.Find(&parts)
 
 	if len(parts) == 0 && part.UserID != -1 {
-		db.Create(&part)
 		var item Item
 		id := part.ItemID
 		db.First(&item, id)
-		item.NumParticipants = item.GetNumParticipants()
-		if item.NumParticipants > item.MaxParticipants {
+		if item.NumParticipants >= item.MaxParticipants {
 			log.Printf("申し込みできませんでした．申し込み人数が上限を超えます．")
 			return false
 		}
+		db.Create(&part)
+		item.NumParticipants = item.GetNumParticipants()
 		db.Save(&item)
 
 		db.Close()
