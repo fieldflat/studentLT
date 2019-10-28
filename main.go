@@ -184,6 +184,46 @@ func main() {
 		}
 	})
 
+	// *********************
+	// url: "/users/show"
+	// 詳細ページ
+	// *********************
+	r.GET("/users/show", func(c *gin.Context) {
+		r.LoadHTMLGlob("templates/main/*")
+		db, err := gorm.Open("sqlite3", "test.sqlite3")
+		if err != nil {
+			panic("failed to connect database\n")
+		}
+		info := GetSessionInfo(c)
+
+		var user User
+		userID, _ := strconv.Atoi(c.Query("id"))
+		db.First(&user, userID)
+
+		var parts []Participant
+		query := db.Order("created_at desc")
+		query.Find(&parts)
+
+		query = db.Order("created_at desc")
+		var itemArray []int
+		for _, s := range parts {
+			if s.UserID == userID {
+				itemArray = append(itemArray, s.ItemID)
+			}
+		}
+		query = db.Order("created_at desc").Where("ID in (?)", itemArray)
+		var items []Item
+		query.Find(&items)
+		log.Println(itemArray)
+
+		c.HTML(200, "user_show.tmpl", gin.H{
+			"items":       items,
+			"user":        user,
+			"SessionInfo": info,
+		})
+
+	})
+
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//
 	// 以下，ログインの処理

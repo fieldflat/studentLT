@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +9,10 @@
 
   <!-- Compiled and minified CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  
+
   <!--Import Google Icon Font-->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
+
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -42,58 +43,19 @@
   </nav>
 
   <div class="center-align" style="margin: 50px 0;">
-    <h3>イベント情報掲載ページ</h3>
+    <h3>{{ .user.Name }}</h3>
   </div>
 
-  <div>
-    <form class="col s12" method="get" action="/search">
-      <div class="row">
-        <div class="input-field col s12">
-          <textarea class="materialize-textarea" name="words">{{.searchWords.words}}</textarea>
-          <label for="textarea1" name="search-word">検索ワード (例：プログラミング Python)</label>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s4">
-          <input type="text" class="datepicker" name="scheduledDateFrom" value={{.searchWords.scheduledDateFrom}}>
-          <label for="input_text">開催日時 (from)</label>
-        </div>
-        <div class="col s1" style="padding: 30px 40px;">〜</div>
-        <div class="input-field col s4">
-          <input type="text" class="datepicker" name="scheduledDateTo" value={{.searchWords.scheduledDateTo}}>
-          <label for="input_text">開催日時 (to)</label>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s4">
-          <input type="number" name="priceFrom" value={{.searchWords.priceFrom}}>
-          <label for="input_text">値段 (from)</label>
-        </div>
-        <div class="col s1" style="padding: 30px 40px;">〜</div>
-        <div class="input-field col s4">
-          <input type="number" name="priceTo" value={{.searchWords.priceTo}}>
-          <label for="input_text">値段 (to)</label>
-        </div>
-      </div>
-
-      <div class="center-align">
-        <button class="waves-effect waves-light btn-large" type="submit">検索</button>
-      </div>
-
-      <div class="center-align">
-        <a href="/" class="waves-effect waves-light btn-large" style="margin-top: 3em;">検索項目を初期化する</a>
-      </div>
-
-    </form>
-  </div>
-
+  <h6>申し込みしたイベント</h6>
   <ul class="collection" style="margin: 30px 0;">
     {{ range .items }}
     <li class="collection-item avatar">
       <h4 class="title">
         <!-- Modal Trigger -->
-        <a class="waves-effect waves-light modal-trigger titleLink" href="#modal{{.ID}}" data-itemID="{{.ID}}">{{.Title}} <span data-itemID="{{.ID}}" class="isSubmit" style="display: none; font-weight: bold; color: red;">(申し込み済)</span></a>
-
+        <a class="waves-effect waves-light modal-trigger titleLink" href="#modal{{.ID}}" data-itemID="{{.ID}}">{{.Title}}
+          <span data-itemID="{{.ID}}" class="isSubmit"
+            style="display: none; font-weight: bold; color: red;">(申し込み済)</span>
+        </a>
         <!-- Modal Structure -->
         <div id="modal{{.ID}}" class="modal">
           <div class="modal-content">
@@ -117,17 +79,17 @@
               <tr>
                 <td>開催予定日時</td>
                 <td>{{ .ScheduledDateYear }}年{{ .ScheduledDateMonth }}月{{ .ScheduledDateDay }}日
-                {{ .ScheduledDateHour }}時{{ .ScheduledDateMinute }}分</td>
+                  {{ .ScheduledDateHour }}時{{ .ScheduledDateMinute }}分</td>
               </tr>
               <tr>
                 <td>開催終了日時</td>
                 <td>{{ .ScheduledDateEndYear }}年{{ .ScheduledDateEndMonth }}月{{ .ScheduledDateEndDay }}日
-                {{ .ScheduledDateEndHour }}時{{ .ScheduledDateEndMinute }}分</td>
+                  {{ .ScheduledDateEndHour }}時{{ .ScheduledDateEndMinute }}分</td>
               </tr>
               <tr>
                 <td>申し込み締切日時</td>
                 <td>{{ .DeadlineDateYear }}年{{ .DeadlineDateMonth }}月{{ .DeadlineDateDay }}日
-                {{ .DeadlineDateHour }}時{{ .DeadlineDateMinute }}分</td>
+                  {{ .DeadlineDateHour }}時{{ .DeadlineDateMinute }}分</td>
               </tr>
               <tr>
                 <td>持ち物リスト</td>
@@ -143,17 +105,7 @@
               </tr>
             </tbody>
           </table>
-          <!-- <div class="modal-footer">
-            <a href="/detail?id={{.ID}}" class="modal-close waves-effect waves-green btn-flat">詳細をみる</a>
-          </div> -->
-          <form class="col s12" method="post" action="/inform?id={{.ID}}" onSubmit="return check()" style="margin: 30px 0;">
-            <div class="center-align">
-              <button class="btn btn-primary btn-lg submitButton" type="submit">申し込みをする</button>
-              <p style="display: none; font-weight: bold; color: red;" class="doneSubmit">すでに申し込みが完了しています</p>
-            </div>
-          </form>
         </div>
-
       </h4>
       <h6 style="color: rgb(180, 180, 180);">
         開催予定：{{ .ScheduledDateYear }}年{{ .ScheduledDateMonth }}月{{ .ScheduledDateDay }}日
@@ -164,11 +116,15 @@
     {{ end }}
   </ul>
 
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
-    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
 </body>
+
 </html>
 
 <style>
@@ -213,25 +169,25 @@
         "item_id": $(this).data('itemid'),
       },
     })
-    // Ajaxリクエストが成功した時発動
-    .done((data) => {
-      if(data['result']) {
-        $('.submitButton').hide();
-        $('.doneSubmit').show();
-      } else {
-        $('.submitButton').show();
-        $('.doneSubmit').hide();
-      }
-    })
-    // Ajaxリクエストが失敗した時発動
-    .fail((data) => {
-      console.log("Ajax Failed!");
-      console.log('fail = ' + data['result']);
-    })
-    // Ajaxリクエストが成功・失敗どちらでも発動
-    .always((data) => {
-      console.log('always = ' + data['result']);
-    });
+      // Ajaxリクエストが成功した時発動
+      .done((data) => {
+        if (data['result']) {
+          $('.submitButton').hide();
+          $('.doneSubmit').show();
+        } else {
+          $('.submitButton').show();
+          $('.doneSubmit').hide();
+        }
+      })
+      // Ajaxリクエストが失敗した時発動
+      .fail((data) => {
+        console.log("Ajax Failed!");
+        console.log('fail = ' + data['result']);
+      })
+      // Ajaxリクエストが成功・失敗どちらでも発動
+      .always((data) => {
+        console.log('always = ' + data['result']);
+      });
   });
 
   function check() {
@@ -244,7 +200,7 @@
   }
 
   $(window).on('load', function () {
-    $(".isSubmit").each(function(index, element){
+    $(".isSubmit").each(function (index, element) {
       $.ajax({
         url: './isItemPurchased',
         type: 'GET',
@@ -252,21 +208,21 @@
           "item_id": $(this).data('itemid'),
         },
       })
-      // Ajaxリクエストが成功した時発動
-      .done((data) => {
-        if (data['result']) {
-          $(this).show();
-        }
-      })
-      // Ajaxリクエストが失敗した時発動
-      .fail((data) => {
-        console.log("Ajax Failed!");
-        console.log('fail = ' + data['result']);
-      })
-      // Ajaxリクエストが成功・失敗どちらでも発動
-      .always((data) => {
-        console.log('always = ' + data['result']);
-      });
+        // Ajaxリクエストが成功した時発動
+        .done((data) => {
+          if (data['result']) {
+            $(this).show();
+          }
+        })
+        // Ajaxリクエストが失敗した時発動
+        .fail((data) => {
+          console.log("Ajax Failed!");
+          console.log('fail = ' + data['result']);
+        })
+        // Ajaxリクエストが成功・失敗どちらでも発動
+        .always((data) => {
+          console.log('always = ' + data['result']);
+        });
     });
   });
 
