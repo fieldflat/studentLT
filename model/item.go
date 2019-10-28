@@ -180,3 +180,19 @@ func SearchItems(searchWords map[string]string) []Item {
 	query.Find(&items)
 	return items
 }
+
+// GetNumParticipants is a function
+// ====================
+// GetNumParticipants
+// itemのNumParticipantsをリターン
+// ====================
+func (item *Item) GetNumParticipants() int {
+	db, err := gorm.Open("sqlite3", "test.sqlite3")
+	if err != nil {
+		panic("failed to connect database\n")
+	}
+	var parts []Participant
+	query := db.Order("created_at desc").Where("item_id = (?)", item.ID)
+	query.Find(&parts)
+	return len(parts)
+}

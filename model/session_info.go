@@ -37,7 +37,7 @@ func GetSessionInfo(c *gin.Context) SessionInfo {
 	name := session.Get("name")
 	alive := session.Get("alive")
 	// if isNil(userID) && isNil(name) && isNil(alive) {
-	if userID == nil && name == nil && alive == nil {
+	if userID == nil || name == nil || alive == nil {
 		info = SessionInfo{
 			UserID: -1, Name: "", IsSessionAlive: false,
 		}
@@ -50,6 +50,21 @@ func GetSessionInfo(c *gin.Context) SessionInfo {
 	}
 	log.Println(info)
 	return info
+}
+
+// IsLogin is a function
+// =====================
+// IsLogin 関数
+// =====================
+func IsLogin(c *gin.Context) bool {
+	session := sessions.Default(c)
+	userID := session.Get("userID")
+	name := session.Get("name")
+	alive := session.Get("alive")
+	if userID == nil || name == nil || alive == nil {
+		return false
+	}
+	return true
 }
 
 // ClearSession is a function

@@ -65,6 +65,39 @@ func main() {
 	})
 
 	// *********************
+	// url: "/isItemPurchased"
+	// API
+	// 一覧取得
+	// *********************
+	r.GET("/isItemPurchased", func(c *gin.Context) {
+		// r.LoadHTMLGlob("templates/main/*")
+		// items := GetAllItems()
+		db, err := gorm.Open("sqlite3", "test.sqlite3")
+		if err != nil {
+			panic("failed to connect database\n")
+		}
+		info := GetSessionInfo(c)
+		itemID := c.Query("item_id")
+		log.Printf("itemID = %s", itemID)
+		log.Printf("info.UserID = %d", info.UserID.(int))
+
+		var parts []Participant
+		query := db.Order("created_at desc").Where("item_id = (?) AND user_id = (?)", itemID, info.UserID)
+		query.Find(&parts)
+
+		var result bool
+		if len(parts) > 0 && info.UserID != -1 {
+			result = true
+		} else {
+			result = false
+		}
+
+		c.JSON(200, gin.H{
+			"result": result,
+		})
+	})
+
+	// *********************
 	// url: "/search"
 	// 検索結果取得
 	// *********************
@@ -120,18 +153,35 @@ func main() {
 			panic("failed to connect database\n")
 		}
 
-		var item Item
-		id := c.Query("id")
-		db.First(&item, id)
+		if IsLogin(c) {
+			var item Item
+			id := c.Query("id")
+			db.First(&item, id)
 
-		info := GetSessionInfo(c)
-		userID, _ := (info.UserID).(int)
+			info := GetSessionInfo(c)
+			userID, _ := (info.UserID).(int)
 
-		var part Participant
-		part.ItemID, _ = strconv.Atoi(c.Query("id"))
-		part.UserID = userID
-		part.Create()
-		c.Redirect(302, "/")
+			var part Participant
+			part.ItemID, _ = strconv.Atoi(c.Query("id"))
+			part.UserID = userID
+			if part.Create() {
+				//
+				// フラッシュメッセージの送信 (申込み完了)
+				//
+				c.Redirect(302, "/")
+			} else {
+				//
+				// フラッシュメッセージの送信 (申込み失敗)
+				//
+				c.HTML(200, "error.tmpl", gin.H{})
+			}
+		} else {
+			//
+			// フラッシュメッセージの送信 (申込み失敗)
+			//
+			c.Redirect(302, "/login")
+			// c.HTML(200, "error_login.tmpl", gin.H{})
+		}
 	})
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~
